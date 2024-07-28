@@ -1,0 +1,27 @@
+{
+    "name": "swoole-app/swoole-app-mongo-connection",
+    "description": "Package representing asynchronous wrapper over Swoole Task for MongoDB driver for PHP",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "SwooleApp\\SwooleAppMongoConnection\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "SidAlex",
+            "email": "palach.orl@mail.ru"
+        }
+    ],
+    "require": {
+        "sidalex/swoole-app": "^0.2.1",
+        "oittaa/uuid": "^1.10"
+    },
+    "config": {
+        "allow-plugins": {
+            "yurunsoft/composer-include-files": false,
+            "yurunsoft/guzzle-swoole": false
+        }
+    }
+}

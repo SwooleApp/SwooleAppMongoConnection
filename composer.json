@@ -16,12 +16,14 @@
     ],
     "require": {
         "sidalex/swoole-app": "^0.2.1",
+        "mongodb/mongodb": "^1.19",
+        "ext-mongodb": "*",
         "oittaa/uuid": "^1.10"
     },
     "config": {
         "allow-plugins": {
-            "yurunsoft/composer-include-files": false,
-            "yurunsoft/guzzle-swoole": false
+            "yurunsoft/composer-include-files": true,
+            "yurunsoft/guzzle-swoole": true
         }
     }
 }

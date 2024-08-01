@@ -7,15 +7,15 @@ use MongoDB\Database;
 class MongoPool extends ConnectionPool
 {
     /**
-     * @var array<Database>
+     * @var array<int, Database>
      */
     protected array $pool = [];
 
     /**
      * @param string $collectionName
-     * @param array|object $data
-     * @param array $option
-     * @return array
+     * @param array<mixed>|object $data
+     * @param array<mixed> $option
+     * @return array<mixed>
      */
     public function insertOne(string $collectionName, array|object $data, array $option = []): array
     {
@@ -27,11 +27,11 @@ class MongoPool extends ConnectionPool
 
     /**
      * @param string $collectionName
-     * @param array|object $data
-     * @param array $option
-     * @return array
+     * @param array<int, array<mixed>|object> $data
+     * @param array<mixed> $option
+     * @return array<mixed>
      */
-    public function insertMany(string $collectionName, array|object $data, array $option = []): array
+    public function insertMany(string $collectionName, array $data, array $option = []): array
     {
         $key = $this->searchFreeResource();
         $result = $this->pool[$key]->selectCollection($collectionName)->insertMany($data, $option)->getInsertedIds();
@@ -41,9 +41,9 @@ class MongoPool extends ConnectionPool
 
     /**
      * @param string $collectionName
-     * @param array|object $query
-     * @param array $option
-     * @return array
+     * @param array<mixed>|object $query
+     * @param array<mixed> $option
+     * @return array<mixed>
      */
     public function find(string $collectionName, array|object $query, array $option): array
     {
@@ -55,23 +55,23 @@ class MongoPool extends ConnectionPool
 
     /**
      * @param string $collectionName
-     * @param mixed $query
-     * @return array
+     * @param array<mixed> $query
+     * @return array<mixed>
      */
     public function findOne(string $collectionName, mixed $query): array
     {
         $key = $this->searchFreeResource();
-        $result = $this->pool[$key]->selectCollection($collectionName)->findOne($query)->toArray();
+        $result = $this->pool[$key]->selectCollection($collectionName)->findOne($query);
         $this->freePull[$key] = true;
-        return $result;
+        return (array)$result;
     }
 
     /**
      * @param string $collectionName
-     * @param array|object $query
-     * @param array|object $updateData
-     * @param array $option
-     * @return array
+     * @param array<mixed>|object $query
+     * @param array<mixed>|object $updateData
+     * @param array<mixed> $option
+     * @return array<mixed>
      */
     public function updateOne(string $collectionName, array|object $query, array|object $updateData, array $option = []): array
     {
@@ -83,10 +83,10 @@ class MongoPool extends ConnectionPool
 
     /**
      * @param string $collectionName
-     * @param array|object $query
-     * @param array|object $updateData
-     * @param array $option
-     * @return array
+     * @param array<mixed>|object $query
+     * @param array<mixed>|object $updateData
+     * @param array<mixed> $option
+     * @return array<mixed>
      */
     public function updateMany(string $collectionName, array|object $query, array|object $updateData, array $option = []): array
     {
@@ -98,9 +98,9 @@ class MongoPool extends ConnectionPool
 
     /**
      * @param string $collectionName
-     * @param array|object $query
-     * @param array $option
-     * @return array
+     * @param array<mixed>|object $query
+     * @param array<mixed> $option
+     * @return array<mixed>
      */
     public function deleteOne(string $collectionName, array|object $query, array $option = []): array
     {
@@ -112,9 +112,9 @@ class MongoPool extends ConnectionPool
 
     /**
      * @param string $collectionName
-     * @param array|object $query
-     * @param array $option
-     * @return array
+     * @param array<mixed>|object $query
+     * @param array<mixed> $option
+     * @return array<mixed>
      */
     public function deleteMany(string $collectionName, array|object $query, array $option = []): array
     {

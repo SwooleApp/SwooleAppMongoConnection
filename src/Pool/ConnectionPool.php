@@ -4,10 +4,21 @@ namespace SwooleApp\SwooleAppMongoConnection\Pool;
 
 class ConnectionPool
 {
+    /**
+     * @var array<int, mixed>
+     */
     protected array $pool = [];
-
+    /**
+     * @var int
+     */
     protected int $countResource;
+    /**
+     * @var bool
+     */
     private bool $mutexes_pull = false;
+    /**
+     * @var array<int, bool>
+     */
     protected array $freePull = [];
 
     /**
@@ -30,11 +41,7 @@ class ConnectionPool
     protected function takeMutexesPull(): void
     {
         while ($this->mutexes_pull) {
-            if (!$this->coroutineRuntime()) {
-                usleep(10000);
-            } else {
-                \co::sleep(0.01);
-            }
+            $this->wait();
         }
         $this->mutexes_pull = true;
     }
@@ -49,21 +56,30 @@ class ConnectionPool
         $this->takeMutexesPull();
         $key = array_search(true, $this->freePull);
         while ($key === false) {
-            if (!$this->coroutineRuntime()) {
-                usleep(10);
-            } else {
-                \co::sleep(0.01);
-            }
+            $this->wait();
             $key = array_search(true, $this->freePull);
         }
         $this->freePull[$key] = false;
         $this->giveAwayMutexes();
-        return $key;
+        return (int)$key;
     }
 
     protected function coroutineRuntime(): bool
     {
         return (\Swoole\Coroutine::getCid() !== -1);
+    }
+
+    /**
+     * @return void
+     */
+    protected function wait(): void
+    {
+        if (!$this->coroutineRuntime()) {
+            usleep(10);
+        } else {
+            // @phpstan-ignore-next-line
+            \co::sleep(0.01);
+        }
     }
 
 }

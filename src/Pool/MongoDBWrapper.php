@@ -20,6 +20,7 @@ class MongoDBWrapper
 
     /**
      * @param string $collectionName
+     * @param string $poolKey
      * @param array<mixed>|object $data
      * @param array<mixed> $option
      * @param float $timeout time
@@ -28,17 +29,18 @@ class MongoDBWrapper
      * @phpstan-ignore-next-line
      * @throws TaskException
      */
-    public function insertOne(string $collectionName, array|object $data, array $option = [], float $timeout = 0): array
+    public function insertOne(string $collectionName, string $poolKey, array|object $data, array $option = [], float $timeout = 0): array
     {
         $taskData = new BasicTaskData('Sidalex\TestSwoole\Tasks\TestTaskExecutorPool', [
             'method' => 'insertOne',
+            'poolKey' => $poolKey,
             'collectionName' => $collectionName,
             'data' => $data,
             'option' => $option,
         ]);
         $taskResult = $this->server->taskwait($taskData);
         if (
-            ($taskResult instanceof TaskResulted ) &&
+            ($taskResult instanceof TaskResulted) &&
             is_array($taskResult->getResult())
         ) {
             //todo реализовать проверку валидности ответа

@@ -11,34 +11,51 @@ class MongoPoolInitializer extends AbstractContainerInitiator
     public function init(\Sidalex\SwooleApp\Application $param): void
     {
         $mongoConfig = $this->getValidConfig($param);
-        if ($mongoConfig->typeConnection == Constants::CONNECTION_POOL) {
-            $poolList = [];
-            foreach ($mongoConfig->pool as $itemConnectionConfig) {
-                $pool = new MongoPool($itemConnectionConfig->connection_count);
-                $pool->init(function () use ($itemConnectionConfig) {
-                    $username_password = $itemConnectionConfig->username . ':' . $itemConnectionConfig->password . '@';
-                    $host_and_port = $itemConnectionConfig->host . ':' . $itemConnectionConfig->port;
-                    $connectionString = 'mongodb://' . $username_password . $host_and_port;
-                    $mongoClient = new \MongoDB\Client($connectionString, [], [
-                        'typeMap' => [
-                            'array' => 'array',
-                            'document' => 'array',
-                            'root' => 'array',
-                        ],
-                    ]);
-                    $dm = $mongoClient->selectDatabase($itemConnectionConfig->db_name ?? 'Blog');
-                    return $dm;
-                });
-                $poolList[$itemConnectionConfig->containerKey] = $pool;
-            }
-            $this->result = $poolList;
-            $this->key = Constants::CONTAINER_POOL_NAME;
+
+        if ($mongoConfig->typeConnection === Constants::CONNECTION_POOL) {
+            $this->initializePool($mongoConfig->pool);
         }
+    }
+
+    private function initializePool(array $poolConfigs): void
+    {
+        $poolList = [];
+
+        foreach ($poolConfigs as $itemConnectionConfig) {
+            $pool = new MongoPool($itemConnectionConfig->connection_count);
+            $pool->init(fn() => $this->createMongoDatabase($itemConnectionConfig));
+            $poolList[$itemConnectionConfig->container_key] = $pool;
+        }
+
+        $this->result = $poolList;
+        $this->key = Constants::CONTAINER_POOL_NAME;
+    }
+
+    private function createMongoDatabase($itemConnectionConfig): \MongoDB\Database
+    {
+        $connectionString = sprintf(
+            'mongodb://%s:%s@%s:%s',
+            $itemConnectionConfig->username,
+            $itemConnectionConfig->password,
+            $itemConnectionConfig->host,
+            $itemConnectionConfig->port
+        );
+
+        $mongoClient = new \MongoDB\Client($connectionString, [], [
+            'typeMap' => [
+                'array' => 'array',
+                'document' => 'array',
+                'root' => 'array',
+            ],
+        ]);
+
+        return $mongoClient->selectDatabase($itemConnectionConfig->db_name);
     }
 
     private function getValidConfig(\Sidalex\SwooleApp\Application $param): \stdClass
     {
         $mongoConfig = $param->getConfig()->getConfigFromKey('mongoDB');
+
         if (is_null($mongoConfig)) {
             throw new \Error("Config not set key mongoDB");
         }
@@ -63,18 +80,30 @@ class MongoPoolInitializer extends AbstractContainerInitiator
     private function validateConnectionConfig(\stdClass $mongoConfig): void
     {
         if ($mongoConfig->typeConnection === Constants::CONNECTION_POOL) {
-            if (!isset($mongoConfig->pool) || !is_array($mongoConfig->pool)) {
-                throw new \Error('Invalid mongoDB config: pool not set or not an array');
-            }
-            foreach ($mongoConfig->pool as $connectionConfig) {
-                $this->checkConnectionConfigPool($connectionConfig);
-            }
+            $this->validatePoolConfig($mongoConfig->pool);
         } elseif ($mongoConfig->typeConnection === Constants::CONNECTION_STATIC) {
-            if (!isset($mongoConfig->connectionCredential) || !is_object($mongoConfig->connectionCredential)) {
-                throw new \Error('Invalid mongoDB config: connectionCredential not set or not an object');
-            }
-            $this->checkConnectionConfigStatic($mongoConfig->connectionCredential);
+            $this->validateStaticConfig($mongoConfig->connectionCredential);
         }
+    }
+
+    private function validatePoolConfig($pool): void
+    {
+        if (!isset($pool) || !is_array($pool)) {
+            throw new \Error('Invalid mongoDB config: pool not set or not an array');
+        }
+
+        foreach ($pool as $connectionConfig) {
+            $this->checkConnectionConfigPool($connectionConfig);
+        }
+    }
+
+    private function validateStaticConfig($connectionCredential): void
+    {
+        if (!isset($connectionCredential) || !is_object($connectionCredential)) {
+            throw new \Error('Invalid mongoDB config: connectionCredential not set or not an object');
+        }
+
+        $this->checkConnectionConfigStatic($connectionCredential);
     }
 
     private function checkConnectionConfigPool(mixed $connectionConfig): void

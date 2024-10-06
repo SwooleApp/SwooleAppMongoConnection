@@ -17,6 +17,10 @@ class MongoPoolInitializer extends AbstractContainerInitiator
         }
     }
 
+    /**
+     * @param array<\stdClass> $poolConfigs
+     * @return void
+     */
     private function initializePool(array $poolConfigs): void
     {
         $poolList = [];
@@ -31,7 +35,7 @@ class MongoPoolInitializer extends AbstractContainerInitiator
         $this->key = Constants::CONTAINER_POOL_NAME;
     }
 
-    private function createMongoDatabase($itemConnectionConfig): \MongoDB\Database
+    private function createMongoDatabase(\stdClass $itemConnectionConfig): \MongoDB\Database
     {
         $connectionString = sprintf(
             'mongodb://%s:%s@%s:%s',
@@ -86,7 +90,7 @@ class MongoPoolInitializer extends AbstractContainerInitiator
         }
     }
 
-    private function validatePoolConfig($pool): void
+    private function validatePoolConfig(mixed $pool): void
     {
         if (!isset($pool) || !is_array($pool)) {
             throw new \Error('Invalid mongoDB config: pool not set or not an array');
@@ -97,16 +101,16 @@ class MongoPoolInitializer extends AbstractContainerInitiator
         }
     }
 
-    private function validateStaticConfig($connectionCredential): void
+    private function validateStaticConfig(mixed $connectionCredential): void
     {
-        if (!isset($connectionCredential) || !is_object($connectionCredential)) {
+        if (!$connectionCredential instanceof \stdClass) {
             throw new \Error('Invalid mongoDB config: connectionCredential not set or not an object');
         }
 
         $this->checkConnectionConfigStatic($connectionCredential);
     }
 
-    private function checkConnectionConfigPool(mixed $connectionConfig): void
+    private function checkConnectionConfigPool(\stdClass $connectionConfig): void
     {
         foreach (Constants::CONNECTION_POOL_REQUIRED_KEY as $key) {
             if (!isset($connectionConfig->$key)) {

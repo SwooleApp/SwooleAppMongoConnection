@@ -29,7 +29,7 @@ class MongoDBWrapper
      * @phpstan-ignore-next-line
      * @throws TaskException
      */
-    public function insertOne(string $collectionName, string $poolKey, array|object $data, array $option = [], float $timeout = 0): array
+    public function insertOne(string $collectionName, string|null $poolKey, array|object $data, array $option = [], float $timeout = 0): array
     {
         $taskData = new BasicTaskData('Sidalex\TestSwoole\Tasks\TestTaskExecutorPool', [
             'method' => 'insertOne',

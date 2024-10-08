@@ -20,7 +20,7 @@ class MongoDBWrapper
 
     /**
      * @param string $collectionName
-     * @param string $poolKey
+     * @param string|null $poolKey
      * @param array<mixed>|object $data
      * @param array<mixed> $option
      * @param float $timeout time

@@ -33,44 +33,6 @@ class MongoTasksExecutor extends AbstractTaskExecutor
     }
 
     /**
-     * @param string $collectionName
-     * @param string $poolKey
-     * @param array<mixed>|object $query
-     * @param array<mixed> $option
-     * @return array<mixed>
-     * @throws \Exception
-     */
-    protected
-    function findPool(string $collectionName, string $poolKey, array|object $query, array $option = []): array
-    {
-        if (!$this->app->getStateContainer()->getContainer(Constants::CONTAINER_POOL_NAME)[$poolKey] instanceof MongoPool) {
-            throw new \Exception('container with key ' . $poolKey . 'is not a MongoPool instance');
-        }
-        $mongoPool = $this->app->getStateContainer()->getContainer(Constants::CONTAINER_POOL_NAME)[$poolKey];
-        $result = $mongoPool->find($collectionName, $query, $option);
-        unset($mongoPool);
-        return $result;
-    }
-
-    /**
-     * @param string $collectionName
-     * @param array<mixed>|object $query
-     * @param array<mixed> $option
-     * @return array<mixed>
-     * @throws \Exception
-     */
-    protected
-    function findStatic(string $collectionName, array|object $query, array $option = []): array
-    {
-        $mongoConfig = (new MongoConfigGetter())->getValidConfig($this->app);
-        $mongoClient = (new MongoStaticClientInitializer)->getMongoClient($mongoConfig->connectionCredential);
-        $result = $mongoClient->selectCollection($collectionName)->find($query, $option)->toArray();
-        unset($mongoClient);
-        unset($mongoConfig);
-        return $result;
-    }
-
-    /**
      * @return mixed[]
      * @throws \Exception
      */
@@ -79,11 +41,11 @@ class MongoTasksExecutor extends AbstractTaskExecutor
         $option = $this->dataStorage['option'] ?? [];
         switch ($this->dataStorage['method']) {
             case 'find':
-                $result = $this->findPool($this->dataStorage['collectionName'], $this->dataStorage['poolKey'], $this->dataStorage['query'], $option);
+                $result = $this->findPool($this->dataStorage['poolKey'], $this->dataStorage['collectionName'], $this->dataStorage['query'], $option);
                 break;
-//            case 'findOne':
-//                $result = $this->findOne($this->dataStorage['collectionName'], $this->dataStorage['query'], $option);
-//                break;
+            case 'findOne':
+                $result = $this->findOnePool($this->dataStorage['poolKey'], $this->dataStorage['collectionName'], $this->dataStorage['query'], $option);
+                break;
 //            case 'insertOne':
 //                $result = $this->insertOne($this->dataStorage['collectionName'], $this->dataStorage['data'], $option);
 //                break;
@@ -143,5 +105,70 @@ class MongoTasksExecutor extends AbstractTaskExecutor
                 throw new \Exception('Unsupported method: ' . $this->dataStorage['method']);
         }
         return $result;
+    }
+
+    /**
+     * @param string $collectionName
+     * @param string $poolKey
+     * @param array<mixed>|object $query
+     * @param array<mixed> $option
+     * @return array<mixed>
+     * @throws \Exception
+     */
+    protected
+    function findPool(string $collectionName, string $poolKey, array|object $query, array $option = []): array
+    {
+        $this->checkContainerPool($poolKey);
+        $mongoPool = $this->app->getStateContainer()->getContainer(Constants::CONTAINER_POOL_NAME)[$poolKey];
+        $result = $mongoPool->find($collectionName, $query, $option);
+        unset($mongoPool);
+        return $result;
+    }
+
+    /**
+     * @param string $collectionName
+     * @param array<mixed>|object $query
+     * @param array<mixed> $option
+     * @return array<mixed>
+     * @throws \Exception
+     */
+    protected
+    function findStatic(string $collectionName, array|object $query, array $option = []): array
+    {
+        $mongoConfig = (new MongoConfigGetter())->getValidConfig($this->app);
+        $mongoClient = (new MongoStaticClientInitializer)->getMongoClient($mongoConfig->connectionCredential);
+        $result = $mongoClient->selectCollection($collectionName)->find($query, $option)->toArray();
+        unset($mongoClient);
+        unset($mongoConfig);
+        return $result;
+    }
+
+    /**
+     * @param string $poolKey
+     * @param string $collectionName
+     * @param array<mixed>|object $query
+     * @param array<mixed> $option
+     * @return array<mixed>
+     * @throws \Exception
+     */
+    private function findOnePool(string $poolKey, string $collectionName, array|object $query, array $option): array
+    {
+        $this->checkContainerPool($poolKey);
+        $mongoPool = $this->app->getStateContainer()->getContainer(Constants::CONTAINER_POOL_NAME)[$poolKey];
+        $result = $mongoPool->findOne($collectionName, $query, $option);
+        unset($mongoPool);
+        return $result;
+    }
+
+    /**
+     * @param string $poolKey
+     * @return void
+     * @throws \Exception
+     */
+    private function checkContainerPool(string $poolKey)
+    {
+        if (!$this->app->getStateContainer()->getContainer(Constants::CONTAINER_POOL_NAME)[$poolKey] instanceof MongoPool) {
+            throw new \Exception('container with key ' . $poolKey . 'is not a MongoPool instance');
+        }
     }
 }

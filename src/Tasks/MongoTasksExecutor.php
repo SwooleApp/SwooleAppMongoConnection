@@ -5,6 +5,7 @@ namespace SwooleApp\SwooleAppMongoConnection\Tasks;
 use Sidalex\SwooleApp\Classes\Tasks\Executors\AbstractTaskExecutor;
 use Sidalex\SwooleApp\Classes\Tasks\TaskResulted;
 use SwooleApp\SwooleAppMongoConnection\ConfigMongoGetter\MongoConfigGetter;
+use SwooleApp\SwooleAppMongoConnection\Initializers\MongoStaticClientInitializer;
 use SwooleApp\SwooleAppMongoConnection\Pool\Constants;
 use SwooleApp\SwooleAppMongoConnection\Pool\MongoPool;
 
@@ -52,6 +53,24 @@ class MongoTasksExecutor extends AbstractTaskExecutor
     }
 
     /**
+     * @param string $collectionName
+     * @param array<mixed>|object $query
+     * @param array<mixed> $option
+     * @return array<mixed>
+     * @throws \Exception
+     */
+    protected
+    function findStatic(string $collectionName, array|object $query, array $option = []): array
+    {
+        $mongoConfig = (new MongoConfigGetter())->getValidConfig($this->app);
+        $mongoClient = (new MongoStaticClientInitializer)->getMongoClient($mongoConfig->connectionCredential);
+        $result = $mongoClient->selectCollection($collectionName)->find($query, $option)->toArray();
+        unset($mongoClient);
+        unset($mongoConfig);
+        return $result;
+    }
+
+    /**
      * @return mixed[]
      * @throws \Exception
      */
@@ -94,6 +113,35 @@ class MongoTasksExecutor extends AbstractTaskExecutor
      */
     private function commandStaticExec(): array
     {
-        return [];
+        $option = $this->dataStorage['option'] ?? [];
+        switch ($this->dataStorage['method']) {
+            case 'find':
+                $result = $this->findStatic($this->dataStorage['collectionName'], $this->dataStorage['query'], $option);
+                break;
+//            case 'findOne':
+//                $result = $this->findOne($this->dataStorage['collectionName'], $this->dataStorage['query'], $option);
+//                break;
+//            case 'insertOne':
+//                $result = $this->insertOne($this->dataStorage['collectionName'], $this->dataStorage['data'], $option);
+//                break;
+//            case 'insertMany':
+//                $result = $this->insertMany($this->dataStorage['collectionName'], $this->dataStorage['data'], $option);
+//                break;
+//            case 'updateOne':
+//                $result = $this->updateOne($this->dataStorage['collectionName'], $this->dataStorage['query'], $this->dataStorage['updateData'], $option);
+//                break;
+//            case 'updateMany':
+//                $result = $this->updateMany($this->dataStorage['collectionName'], $this->dataStorage['query'], $this->dataStorage['updateData'], $option);
+//                break;
+//            case 'deleteOne':
+//                $result = $this->deleteOne($this->dataStorage['collectionName'], $this->dataStorage['query'], $option);
+//                break;
+//            case 'deleteMany':
+//                $result = $this->deleteMany($this->dataStorage['collectionName'], $this->dataStorage['query'], $option);
+//                break;
+            default:
+                throw new \Exception('Unsupported method: ' . $this->dataStorage['method']);
+        }
+        return $result;
     }
 }

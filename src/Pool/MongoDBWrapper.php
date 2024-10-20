@@ -38,7 +38,7 @@ class MongoDBWrapper
             'data' => $data,
             'option' => $option,
         ]);
-        $taskResult = $this->server->taskwait($taskData);
+        $taskResult = $this->server->taskwait($taskData,$timeout);
         if (
             ($taskResult instanceof TaskResulted) &&
             is_array($taskResult->getResult())
@@ -47,6 +47,33 @@ class MongoDBWrapper
             return $taskResult->getResult();
         } else {
             throw new DataException('Error in task execution: data is not array');
+        }
+    }
+
+    /**
+     * @param string $collectionName
+     * @param string|null $poolKey
+     * @param array<mixed>|object $data
+     * @param array<mixed> $option
+     * @return int
+     * @throws DataException
+     */
+    public function insertOneAsync(string $collectionName, string|null $poolKey, array|object $data, array $option = []) :int
+    {
+        $taskData = new BasicTaskData('Sidalex\TestSwoole\Tasks\TestTaskExecutorPool', [
+            'method' => 'insertOne',
+            'poolKey' => $poolKey,
+            'collectionName' => $collectionName,
+            'data' => $data,
+            'option' => $option,
+        ]);
+        $taskResult = $this->server->task($taskData);
+        if (
+            (is_int($taskResult))
+        ) {
+            return $taskResult;
+        } else {
+            throw new DataException('Error in task async execution: $taskResult='.$taskResult);
         }
     }
 

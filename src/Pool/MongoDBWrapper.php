@@ -77,4 +77,33 @@ class MongoDBWrapper
         }
     }
 
+//    public function insertMany(string $collectionName, array|object $data, array $option = []):array
+//    {
+//    }
+//    public function insertManyAsync(string $collectionName, array|object $data, array $option = []): int
+//    {
+//    }
+//
+//    public function updateOne(string $collectionName, array|object $query, array|object $updateData, array $option = []):array
+//    {
+//    }
+//    public function updateMany(string $collectionName, array|object $query, array|object $updateData, array $option = []):array
+//    {
+//    }
+//
+//    public function deleteOne(string $collectionName, array|object $query, array $option = []):array
+//    {
+//    }
+//    public function deleteMany(string $collectionName, array|object $query, array $option = []):array
+//    {
+//    }
+//
+//    public function findOne(string $collectionName, array|object $query, array $option = []):array
+//    {
+//    }
+//
+//    public function find(string $collectionName, array|object $query, array $option = []):array
+//    {
+//    }
+
 }

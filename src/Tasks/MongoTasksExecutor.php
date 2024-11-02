@@ -11,6 +11,7 @@ use SwooleApp\SwooleAppMongoConnection\Pool\MongoPool;
 
 class MongoTasksExecutor extends AbstractTaskExecutor
 {
+    private \stdClass $mongoConfig;
 
     /**
      * @throws \Exception
@@ -18,10 +19,10 @@ class MongoTasksExecutor extends AbstractTaskExecutor
     public function execute(): TaskResulted
     {
         //todo добавить валидацию параметров dataStorage
-        $mongoConfig = (new MongoConfigGetter())->getValidConfig($this->app);
-        if ($mongoConfig->typeConnection === Constants::CONNECTION_POOL) {
+        $this->mongoConfig = (new MongoConfigGetter())->getValidConfig($this->app);
+        if ($this->mongoConfig->typeConnection === Constants::CONNECTION_POOL) {
             $result = $this->commandPoolExec();
-        } elseif ($mongoConfig->typeConnection === Constants::CONNECTION_STATIC) {
+        } elseif ($this->mongoConfig->typeConnection === Constants::CONNECTION_STATIC) {
             $result = $this->commandStaticExec();
         } else {
             //todo вывод ошибки
@@ -87,6 +88,7 @@ class MongoTasksExecutor extends AbstractTaskExecutor
         unset($mongoPool);
         return $result;
     }
+
     /**
      * @param string $poolKey
      * @param string $collectionName
@@ -125,35 +127,35 @@ class MongoTasksExecutor extends AbstractTaskExecutor
         $option = $this->dataStorage['option'] ?? [];
         switch ($this->dataStorage['method']) {
             case 'find':
-                $result = $this->find($this->dataStorage['collectionName'], $this->dataStorage['query'], $option);
+                $result = $this->findStatic($this->dataStorage['collectionName'], $this->dataStorage['query'], $option);
                 break;
 
             case 'findOne':
-                $result = $this->findOne($this->dataStorage['collectionName'], $this->dataStorage['query'], $option);
+                $result = $this->findOneStatic($this->dataStorage['collectionName'], $this->dataStorage['query'], $option);
                 break;
 
             case 'insertOne':
-                $result = $this->insertOne($this->dataStorage['collectionName'], $this->dataStorage['data'], $option);
+                $result = $this->insertOneStatic($this->dataStorage['collectionName'], $this->dataStorage['data'], $option);
                 break;
 
             case 'insertMany':
-                $result = $this->insertMany($this->dataStorage['collectionName'], $this->dataStorage['data'], $option);
+                $result = $this->insertManyStatic($this->dataStorage['collectionName'], $this->dataStorage['data'], $option);
                 break;
 
             case 'updateOne':
-                $result = $this->updateOne($this->dataStorage['collectionName'], $this->dataStorage['filter'], $this->dataStorage['update'], $option);
+                $result = $this->updateOneStatic($this->dataStorage['collectionName'], $this->dataStorage['filter'], $this->dataStorage['update'], $option);
                 break;
 
             case 'updateMany':
-                $result = $this->updateMany($this->dataStorage['collectionName'], $this->dataStorage['filter'], $this->dataStorage['update'], $option);
+                $result = $this->updateManyStatic($this->dataStorage['collectionName'], $this->dataStorage['filter'], $this->dataStorage['update'], $option);
                 break;
 
             case 'deleteOne':
-                $result = $this->deleteOne($this->dataStorage['collectionName'], $this->dataStorage['filter'], $option);
+                $result = $this->deleteOneStatic($this->dataStorage['collectionName'], $this->dataStorage['filter'], $option);
                 break;
 
             case 'deleteMany':
-                $result = $this->deleteMany($this->dataStorage['collectionName'], $this->dataStorage['filter'], $option);
+                $result = $this->deleteManyStatic($this->dataStorage['collectionName'], $this->dataStorage['filter'], $option);
                 break;
 
             default:
@@ -169,16 +171,15 @@ class MongoTasksExecutor extends AbstractTaskExecutor
      * @return array<mixed>
      * @throws \Exception
      */
-    protected function find(string $collectionName, array|object $query, array $option = []): array
+    protected function findStatic(string $collectionName, array|object $query, array $option = []): array
     {
-        $mongoConfig = (new MongoConfigGetter())->getValidConfig($this->app);
-        $mongoClient = (new MongoStaticClientInitializer)->getMongoClient($mongoConfig->connectionCredential);
+        $mongoClient = (new MongoStaticClientInitializer)->getMongoClient($this->mongoConfig->connectionCredential);
 
         // Find multiple documents
         $result = $mongoClient->selectCollection($collectionName)->find($query, $option)->toArray();
 
         unset($mongoClient);
-        unset($mongoConfig);
+
 
         return $result;
     }
@@ -190,19 +191,19 @@ class MongoTasksExecutor extends AbstractTaskExecutor
      * @return mixed|null
      * @throws \Exception
      */
-    protected function findOne(string $collectionName, array|object $query, array $option = []): mixed
+    protected function findOneStatic(string $collectionName, array|object $query, array $option = []): mixed
     {
-        $mongoConfig = (new MongoConfigGetter())->getValidConfig($this->app);
-        $mongoClient = (new MongoStaticClientInitializer)->getMongoClient($mongoConfig->connectionCredential);
+        $mongoClient = (new MongoStaticClientInitializer)->getMongoClient($this->mongoConfig->connectionCredential);
 
         // Find a single document
         $result = $mongoClient->selectCollection($collectionName)->findOne($query, $option);
 
         unset($mongoClient);
-        unset($mongoConfig);
+
 
         return $result;
     }
+
     /**
      * @param string $collectionName
      * @param array<mixed>|object $data
@@ -210,16 +211,15 @@ class MongoTasksExecutor extends AbstractTaskExecutor
      * @return array<mixed>
      * @throws \Exception
      */
-    protected function insertOne(string $collectionName, array|object $data, array $option = []): array
+    protected function insertOneStatic(string $collectionName, array|object $data, array $option = []): array
     {
-        $mongoConfig = (new MongoConfigGetter())->getValidConfig($this->app);
-        $mongoClient = (new MongoStaticClientInitializer)->getMongoClient($mongoConfig->connectionCredential);
+        $mongoClient = (new MongoStaticClientInitializer)->getMongoClient($this->mongoConfig->connectionCredential);
 
         // Insert the document
         $result = $mongoClient->selectCollection($collectionName)->insertOne($data, $option);
 
         unset($mongoClient);
-        unset($mongoConfig);
+
 
         // Return the result as an array
         return [
@@ -235,16 +235,15 @@ class MongoTasksExecutor extends AbstractTaskExecutor
      * @return array<mixed>
      * @throws \Exception
      */
-    protected function insertMany(string $collectionName, array $data, array $option = []): array
+    protected function insertManyStatic(string $collectionName, array $data, array $option = []): array
     {
-        $mongoConfig = (new MongoConfigGetter())->getValidConfig($this->app);
-        $mongoClient = (new MongoStaticClientInitializer)->getMongoClient($mongoConfig->connectionCredential);
+        $mongoClient = (new MongoStaticClientInitializer)->getMongoClient($this->mongoConfig->connectionCredential);
 
         // Insert multiple documents
         $result = $mongoClient->selectCollection($collectionName)->insertMany($data, $option);
 
         unset($mongoClient);
-        unset($mongoConfig);
+
 
         // Return the result as an array
         $insertedIds = array_map(fn($id) => (string)$id, $result->getInsertedIds());
@@ -263,16 +262,15 @@ class MongoTasksExecutor extends AbstractTaskExecutor
      * @return array<mixed>
      * @throws \Exception
      */
-    protected function updateOne(string $collectionName, array $filter, array $update, array $option = []): array
+    protected function updateOneStatic(string $collectionName, array $filter, array $update, array $option = []): array
     {
-        $mongoConfig = (new MongoConfigGetter())->getValidConfig($this->app);
-        $mongoClient = (new MongoStaticClientInitializer)->getMongoClient($mongoConfig->connectionCredential);
+        $mongoClient = (new MongoStaticClientInitializer)->getMongoClient($this->mongoConfig->connectionCredential);
 
         // Update a single document
         $result = $mongoClient->selectCollection($collectionName)->updateOne($filter, $update, $option);
 
         unset($mongoClient);
-        unset($mongoConfig);
+
 
         // Return the result as an array
         return [
@@ -290,16 +288,15 @@ class MongoTasksExecutor extends AbstractTaskExecutor
      * @return array<mixed>
      * @throws \Exception
      */
-    protected function updateMany(string $collectionName, array $filter, array $update, array $option = []): array
+    protected function updateManyStatic(string $collectionName, array $filter, array $update, array $option = []): array
     {
-        $mongoConfig = (new MongoConfigGetter())->getValidConfig($this->app);
-        $mongoClient = (new MongoStaticClientInitializer)->getMongoClient($mongoConfig->connectionCredential);
+        $mongoClient = (new MongoStaticClientInitializer)->getMongoClient($this->mongoConfig->connectionCredential);
 
         // Update multiple documents
         $result = $mongoClient->selectCollection($collectionName)->updateMany($filter, $update, $option);
 
         unset($mongoClient);
-        unset($mongoConfig);
+
 
         // Return the result as an array
         return [
@@ -316,16 +313,15 @@ class MongoTasksExecutor extends AbstractTaskExecutor
      * @return array<mixed>
      * @throws \Exception
      */
-    protected function deleteOne(string $collectionName, array $filter, array $option = []): array
+    protected function deleteOneStatic(string $collectionName, array $filter, array $option = []): array
     {
-        $mongoConfig = (new MongoConfigGetter())->getValidConfig($this->app);
-        $mongoClient = (new MongoStaticClientInitializer)->getMongoClient($mongoConfig->connectionCredential);
+        $mongoClient = (new MongoStaticClientInitializer)->getMongoClient($this->mongoConfig->connectionCredential);
 
         // Delete a single document
         $result = $mongoClient->selectCollection($collectionName)->deleteOne($filter, $option);
 
         unset($mongoClient);
-        unset($mongoConfig);
+
 
         // Return the result as an array
         return [
@@ -341,16 +337,14 @@ class MongoTasksExecutor extends AbstractTaskExecutor
      * @return array<mixed>
      * @throws \Exception
      */
-    protected function deleteMany(string $collectionName, array $filter, array $option = []): array
+    protected function deleteManyStatic(string $collectionName, array $filter, array $option = []): array
     {
-        $mongoConfig = (new MongoConfigGetter())->getValidConfig($this->app);
-        $mongoClient = (new MongoStaticClientInitializer)->getMongoClient($mongoConfig->connectionCredential);
+        $mongoClient = (new MongoStaticClientInitializer)->getMongoClient($this->mongoConfig->connectionCredential);
 
         // Delete multiple documents
         $result = $mongoClient->selectCollection($collectionName)->deleteMany($filter, $option);
 
         unset($mongoClient);
-        unset($mongoConfig);
 
         // Return the result as an array
         return [

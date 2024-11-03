@@ -136,7 +136,6 @@ class MongoTasksExecutor extends AbstractTaskExecutor
     }
 
     /**
-     * Вставляет несколько документов в коллекцию.
      *
      * @param string $collectionName
      * @param string $poolKey
@@ -159,7 +158,6 @@ class MongoTasksExecutor extends AbstractTaskExecutor
     }
 
     /**
-     * Обновляет один документ в коллекции.
      *
      * @param string $poolKey
      * @param string $collectionName

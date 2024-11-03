@@ -59,7 +59,7 @@ class MongoPool extends ConnectionPool
      * @param mixed[] $option
      * @return array<mixed>
      */
-    public function findOne(string $collectionName, mixed $query, array $option): array
+    public function findOne(string $collectionName, array $query, array $option): array
     {
         $key = $this->searchFreeResource();
         $result = $this->pool[$key]->selectCollection($collectionName)->findOne($query, $option);

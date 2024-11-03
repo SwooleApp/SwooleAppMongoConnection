@@ -48,22 +48,22 @@ class MongoTasksExecutor extends AbstractTaskExecutor
                 $result = $this->findOnePool($this->dataStorage['poolKey'], $this->dataStorage['collectionName'], $this->dataStorage['query'], $option);
                 break;
             case 'insertOne':
-                $result = $this->insertOne($this->dataStorage['poolKey'], $this->dataStorage['collectionName'], $this->dataStorage['document'], $option);
+                $result = $this->insertOnePool($this->dataStorage['poolKey'], $this->dataStorage['collectionName'], $this->dataStorage['document'], $option);
                 break;
             case 'insertMany':
-                $result = $this->insertMany($this->dataStorage['poolKey'], $this->dataStorage['collectionName'], $this->dataStorage['documents'], $option);
+                $result = $this->insertManyPool($this->dataStorage['poolKey'], $this->dataStorage['collectionName'], $this->dataStorage['documents'], $option);
                 break;
             case 'updateOne':
-                $result = $this->updateOne($this->dataStorage['poolKey'], $this->dataStorage['collectionName'], $this->dataStorage['filter'], $this->dataStorage['update'], $option);
+                $result = $this->updateOnePool($this->dataStorage['poolKey'], $this->dataStorage['collectionName'], $this->dataStorage['filter'], $this->dataStorage['update'], $option);
                 break;
             case 'updateMany':
-                $result = $this->updateMany($this->dataStorage['poolKey'], $this->dataStorage['collectionName'], $this->dataStorage['filter'], $this->dataStorage['update'], $option);
+                $result = $this->updateManyPool($this->dataStorage['poolKey'], $this->dataStorage['collectionName'], $this->dataStorage['filter'], $this->dataStorage['update'], $option);
                 break;
             case 'deleteOne':
-                $result = $this->deleteOne($this->dataStorage['poolKey'], $this->dataStorage['collectionName'], $this->dataStorage['filter'], $option);
+                $result = $this->deleteOnePool($this->dataStorage['poolKey'], $this->dataStorage['collectionName'], $this->dataStorage['filter'], $option);
                 break;
             case 'deleteMany':
-                $result = $this->deleteMany($this->dataStorage['poolKey'], $this->dataStorage['collectionName'], $this->dataStorage['filter'], $option);
+                $result = $this->deleteManyPool($this->dataStorage['poolKey'], $this->dataStorage['collectionName'], $this->dataStorage['filter'], $option);
                 break;
             default:
                 throw new \Exception('Unsupported method: ' . $this->dataStorage['method']);
@@ -84,12 +84,13 @@ class MongoTasksExecutor extends AbstractTaskExecutor
     {
         $this->checkContainerPool($poolKey);
         $mongoPool = $this->app->getStateContainer()->getContainer(Constants::CONTAINER_POOL_NAME)[$poolKey];
-        /**
-         * @var $mongoPool MongoPool
-         */
-        $result = $mongoPool->find($collectionName, $query, $option);
-        unset($mongoPool);
-        return $result;
+        if ($mongoPool instanceof MongoPool) {
+            $result = $mongoPool->find($collectionName, $query, $option);
+            unset($mongoPool);
+            return $result;
+        } else {
+            throw new \Exception('Pool not found');
+        }
     }
 
     /**
@@ -104,32 +105,34 @@ class MongoTasksExecutor extends AbstractTaskExecutor
     {
         $this->checkContainerPool($poolKey);
         $mongoPool = $this->app->getStateContainer()->getContainer(Constants::CONTAINER_POOL_NAME)[$poolKey];
-        /**
-         * @var $mongoPool MongoPool
-         */
-        $result = $mongoPool->findOne($collectionName, $query, $option);
-        unset($mongoPool);
-        return $result;
+        if ($mongoPool instanceof MongoPool) {
+            $result = $mongoPool->findOne($collectionName, (array)$query, $option);
+            unset($mongoPool);
+            return $result;
+        } else {
+            throw new \Exception('Pool not found');
+        }
     }
 
     /**
      * @param string $poolKey
      * @param string $collectionName
-     * @param array|object $document
+     * @param array<mixed>|object $document
      * @param mixed[] $option
      * @return mixed[]
      * @throws \Exception
      */
-    private function insertOne(string $poolKey, string $collectionName, array|object $document, array $option)
+    private function insertOnePool(string $poolKey, string $collectionName, array|object $document, array $option)
     {
         $this->checkContainerPool($poolKey);
         $mongoPool = $this->app->getStateContainer()->getContainer(Constants::CONTAINER_POOL_NAME)[$poolKey];
-        /**
-         * @var $mongoPool MongoPool
-         */
-        $result = $mongoPool->insertOne($collectionName, $document, $option);
-        unset($mongoPool);
-        return $result;
+        if ($mongoPool instanceof MongoPool) {
+            $result = $mongoPool->insertOne($collectionName, (array)$document, $option);
+            unset($mongoPool);
+            return $result;
+        } else {
+            throw new \Exception('Pool not found');
+        }
     }
 
     /**
@@ -142,16 +145,17 @@ class MongoTasksExecutor extends AbstractTaskExecutor
      * @return mixed
      * @throws \Exception
      */
-    private function insertMany(string $poolKey, string $collectionName, array $documents, array $option)
+    private function insertManyPool(string $poolKey, string $collectionName, array $documents, array $option)
     {
         $this->checkContainerPool($poolKey);
         $mongoPool = $this->app->getStateContainer()->getContainer(Constants::CONTAINER_POOL_NAME)[$poolKey];
-        /**
-         * @var $mongoPool MongoPool
-         */
-        $result = $mongoPool->insertMany($collectionName, $documents, $option);
-        unset($mongoPool);
-        return $result;
+        if ($mongoPool instanceof MongoPool) {
+            $result = $mongoPool->insertMany($collectionName, $documents, $option);
+            unset($mongoPool);
+            return $result;
+        } else {
+            throw new \Exception('Pool not found');
+        }
     }
 
     /**
@@ -165,16 +169,17 @@ class MongoTasksExecutor extends AbstractTaskExecutor
      * @return mixed
      * @throws \Exception
      */
-    private function updateOne(string $poolKey, string $collectionName, array|object $filter, array|object $update, array $options = [])
+    private function updateOnePool(string $poolKey, string $collectionName, array|object $filter, array|object $update, array $options = [])
     {
         $this->checkContainerPool($poolKey);
         $mongoPool = $this->app->getStateContainer()->getContainer(Constants::CONTAINER_POOL_NAME)[$poolKey];
-        /**
-         * @var $mongoPool MongoPool
-         */
-        $result = $mongoPool->updateOne($collectionName, $filter, $update, $options);
-        unset($mongoPool);
-        return $result;
+        if ($mongoPool instanceof MongoPool) {
+            $result = $mongoPool->updateOne($collectionName, $filter, $update, $options);
+            unset($mongoPool);
+            return $result;
+        } else {
+            throw new \Exception('Pool not found');
+        }
     }
 
     /**
@@ -188,16 +193,17 @@ class MongoTasksExecutor extends AbstractTaskExecutor
      * @return mixed
      * @throws \Exception
      */
-    private function updateMany(string $poolKey, string $collectionName, array|object $filter, array|object $update, array $options = [])
+    private function updateManyPool(string $poolKey, string $collectionName, array|object $filter, array|object $update, array $options = [])
     {
         $this->checkContainerPool($poolKey);
         $mongoPool = $this->app->getStateContainer()->getContainer(Constants::CONTAINER_POOL_NAME)[$poolKey];
-        /**
-         * @var $mongoPool MongoPool
-         */
-        $result = $mongoPool->updateMany($collectionName, $filter, $update, $options);
-        unset($mongoPool);
-        return $result;
+        if ($mongoPool instanceof MongoPool) {
+            $result = $mongoPool->updateMany($collectionName, $filter, $update, $options);
+            unset($mongoPool);
+            return $result;
+        } else {
+            throw new \Exception('Pool not found');
+        }
     }
 
     /**
@@ -210,16 +216,17 @@ class MongoTasksExecutor extends AbstractTaskExecutor
      * @return mixed
      * @throws \Exception
      */
-    private function deleteOne(string $poolKey, string $collectionName, array|object $filter, array $options = [])
+    private function deleteOnePool(string $poolKey, string $collectionName, array|object $filter, array $options = [])
     {
         $this->checkContainerPool($poolKey);
         $mongoPool = $this->app->getStateContainer()->getContainer(Constants::CONTAINER_POOL_NAME)[$poolKey];
-        /**
-         * @var $mongoPool MongoPool
-         */
-        $result = $mongoPool->deleteOne($collectionName, $filter, $options);
-        unset($mongoPool);
-        return $result;
+        if ($mongoPool instanceof MongoPool) {
+            $result = $mongoPool->deleteOne($collectionName, $filter, $options);
+            unset($mongoPool);
+            return $result;
+        } else {
+            throw new \Exception('Pool not found');
+        }
     }
 
     /**
@@ -232,16 +239,17 @@ class MongoTasksExecutor extends AbstractTaskExecutor
      * @return mixed
      * @throws \Exception
      */
-    private function deleteMany(string $poolKey, string $collectionName, array|object $filter, array $options = [])
+    private function deleteManyPool(string $poolKey, string $collectionName, array|object $filter, array $options = [])
     {
         $this->checkContainerPool($poolKey);
         $mongoPool = $this->app->getStateContainer()->getContainer(Constants::CONTAINER_POOL_NAME)[$poolKey];
-        /**
-         * @var $mongoPool MongoPool
-         */
-        $result = $mongoPool->deleteMany($collectionName, $filter, $options);
-        unset($mongoPool);
-        return $result;
+        if ($mongoPool instanceof MongoPool) {
+            $result = $mongoPool->deleteMany($collectionName, $filter, $options);
+            unset($mongoPool);
+            return $result;
+        } else {
+            throw new \Exception('Pool not found');
+        }
     }
 
     /**

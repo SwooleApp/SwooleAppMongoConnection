@@ -67,7 +67,8 @@ class MongoDBWrapper
             'data' => $data,
             'option' => $option,
         ]);
-        $taskResult = $this->server->task($taskData);
+        $taskResult = $this->server->task($taskData, finishCallback: function () {
+        });
         if (
             (is_int($taskResult))
         ) {
@@ -127,7 +128,8 @@ class MongoDBWrapper
             'update' => $update,
             'option' => $option,
         ]);
-        $taskResult = $this->server->task($taskData);
+        $taskResult = $this->server->task($taskData, finishCallback: function () {
+        });
         if (
             (is_int($taskResult))
         ) {
@@ -183,7 +185,8 @@ class MongoDBWrapper
             'filter' => $filter,
             'option' => $option,
         ]);
-        $taskResult = $this->server->task($taskData);
+        $taskResult = $this->server->task($taskData, finishCallback: function () {
+        });
         if (
             (is_int($taskResult))
         ) {
@@ -241,7 +244,8 @@ class MongoDBWrapper
             'data' => $data,
             'option' => $option,
         ]);
-        $taskResult = $this->server->task($taskData);
+        $taskResult = $this->server->task($taskData, finishCallback: function () {
+        });
         if (
             (is_int($taskResult))
         ) {
@@ -302,7 +306,8 @@ class MongoDBWrapper
             'update' => $update,
             'option' => $option,
         ]);
-        $taskResult = $this->server->task($taskData);
+        $taskResult = $this->server->task($taskData, finishCallback: function () {
+        });
         if (
             (is_int($taskResult))
         ) {
@@ -359,7 +364,8 @@ class MongoDBWrapper
             'filter' => $filter,
             'option' => $option,
         ]);
-        $taskResult = $this->server->task($taskData);
+        $taskResult = $this->server->task($taskData, finishCallback: function () {
+        });
         if (
             (is_int($taskResult))
         ) {

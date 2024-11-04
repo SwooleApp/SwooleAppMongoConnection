@@ -2,7 +2,6 @@
 
 namespace SwooleApp\SwooleAppMongoConnection\Initializers;
 
-use Sidalex\SwooleApp\Application;
 
 class MongoStaticClientInitializer
 {

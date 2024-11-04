@@ -60,7 +60,7 @@ class MongoDBWrapper
      */
     public function insertOneAsync(string|null $poolKey, string $collectionName, array|object $data, array $option = []): int
     {
-        $taskData = new BasicTaskData('Sidalex\TestSwoole\Tasks\TestTaskExecutorPool', [
+        $taskData = new BasicTaskData('SwooleApp\SwooleAppMongoConnection\Tasks\MongoTasksExecutor', [
             'method' => 'insertOne',
             'poolKey' => $poolKey,
             'collectionName' => $collectionName,
@@ -119,7 +119,7 @@ class MongoDBWrapper
      */
     public function updateOneAsync(string|null $poolKey, string $collectionName, array $filter, array $update, array $option = []): int
     {
-        $taskData = new BasicTaskData('Sidalex\TestSwoole\Tasks\TestTaskExecutorPool', [
+        $taskData = new BasicTaskData('SwooleApp\SwooleAppMongoConnection\Tasks\MongoTasksExecutor', [
             'method' => 'updateOne',
             'poolKey' => $poolKey,
             'collectionName' => $collectionName,
@@ -176,7 +176,7 @@ class MongoDBWrapper
      */
     public function deleteOneAsync(string|null $poolKey, string $collectionName, array $filter, array $option = []): int
     {
-        $taskData = new BasicTaskData('Sidalex\TestSwoole\Tasks\TestTaskExecutorPool', [
+        $taskData = new BasicTaskData('SwooleApp\SwooleAppMongoConnection\Tasks\MongoTasksExecutor', [
             'method' => 'deleteOne',
             'poolKey' => $poolKey,
             'collectionName' => $collectionName,
@@ -234,7 +234,7 @@ class MongoDBWrapper
      */
     public function insertManyAsync(string|null $poolKey, string $collectionName, array $data, array $option = []): int
     {
-        $taskData = new BasicTaskData('Sidalex\TestSwoole\Tasks\TestTaskExecutorPool', [
+        $taskData = new BasicTaskData('SwooleApp\SwooleAppMongoConnection\Tasks\MongoTasksExecutor', [
             'method' => 'insertMany',
             'poolKey' => $poolKey,
             'collectionName' => $collectionName,
@@ -294,7 +294,7 @@ class MongoDBWrapper
      */
     public function updateManyAsync(string|null $poolKey, string $collectionName, array $filter, array $update, array $option = []): int
     {
-        $taskData = new BasicTaskData('Sidalex\TestSwoole\Tasks\TestTaskExecutorPool', [
+        $taskData = new BasicTaskData('SwooleApp\SwooleAppMongoConnection\Tasks\MongoTasksExecutor', [
             'method' => 'updateMany',
             'poolKey' => $poolKey,
             'collectionName' => $collectionName,
@@ -352,7 +352,7 @@ class MongoDBWrapper
      */
     public function deleteManyAsync(string|null $poolKey, string $collectionName, array $filter, array $option = []): int
     {
-        $taskData = new BasicTaskData('Sidalex\TestSwoole\Tasks\TestTaskExecutorPool', [
+        $taskData = new BasicTaskData('SwooleApp\SwooleAppMongoConnection\Tasks\MongoTasksExecutor', [
             'method' => 'deleteMany',
             'poolKey' => $poolKey,
             'collectionName' => $collectionName,

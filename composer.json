@@ -15,6 +15,7 @@
         }
     ],
     "require": {
+        "php": "^8.1",
         "sidalex/swoole-app": "^0.2.1",
         "mongodb/mongodb": "^1.19",
         "ext-mongodb": "*",
@@ -27,6 +28,7 @@
         }
     },
     "require-dev": {
-        "phpstan/phpstan": "^1.11"
+        "phpstan/phpstan": "^1.11",
+        "squizlabs/php_codesniffer": "^3.10"
     }
 }

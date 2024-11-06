@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<ruleset name="MyProjectCodingStandard">
+    <description>Custom coding standard for MyProject.</description>
+
+    <!-- Укажите версию PHP -->
+    <config>
+        <phpVersion>8.1</phpVersion> <!-- Укажите вашу версию PHP -->
+    </config>
+
+    <!-- Подключите стандарт кодирования -->
+    <rule ref="PSR12" />
+
+    <!-- Исключите определенные правила -->
+    <rule ref="Generic.Files.LineLength">
+        <exclude name="Generic.Files.LineLength.TooLong" />
+    </rule>
+
+    <!-- Включите дополнительные правила -->
+<!--    <rule ref="Squiz.Commenting.FileComment" />-->
+
+    <!-- Укажите директории для проверки -->
+    <file>src/</file>
+    <file>tests/</file>
+
+    <!-- Исключите определенные файлы или директории -->
+    <exclude-pattern>vendor/*</exclude-pattern>
+</ruleset>

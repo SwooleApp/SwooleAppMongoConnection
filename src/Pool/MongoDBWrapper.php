@@ -67,6 +67,9 @@ class MongoDBWrapper
             'data' => $data,
             'option' => $option,
         ]);
+        /**
+         * @phpstan-ignore-next-line
+         */
         $taskResult = $this->server->task($taskData, finishCallback: function () {
         });
         if (
@@ -128,6 +131,9 @@ class MongoDBWrapper
             'update' => $update,
             'option' => $option,
         ]);
+        /**
+         * @phpstan-ignore-next-line
+         */
         $taskResult = $this->server->task($taskData, finishCallback: function () {
         });
         if (
@@ -185,6 +191,9 @@ class MongoDBWrapper
             'filter' => $filter,
             'option' => $option,
         ]);
+        /**
+         * @phpstan-ignore-next-line
+         */
         $taskResult = $this->server->task($taskData, finishCallback: function () {
         });
         if (
@@ -244,6 +253,9 @@ class MongoDBWrapper
             'data' => $data,
             'option' => $option,
         ]);
+        /**
+         * @phpstan-ignore-next-line
+         */
         $taskResult = $this->server->task($taskData, finishCallback: function () {
         });
         if (
@@ -306,6 +318,9 @@ class MongoDBWrapper
             'update' => $update,
             'option' => $option,
         ]);
+        /**
+         * @phpstan-ignore-next-line
+         */
         $taskResult = $this->server->task($taskData, finishCallback: function () {
         });
         if (
@@ -364,6 +379,9 @@ class MongoDBWrapper
             'filter' => $filter,
             'option' => $option,
         ]);
+        /**
+         * @phpstan-ignore-next-line
+         */
         $taskResult = $this->server->task($taskData, finishCallback: function () {
         });
         if (
@@ -407,7 +425,7 @@ class MongoDBWrapper
     /**
      * @param string $collectionName
      * @param string|null $poolKey
-     * @param array<mixed> $filter
+     * @param array<mixed> $query
      * @param array<mixed> $option
      * @param float $timeout time
      * @return array<array<mixed>>

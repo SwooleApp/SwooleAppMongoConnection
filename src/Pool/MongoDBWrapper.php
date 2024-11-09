@@ -413,13 +413,13 @@ class MongoDBWrapper
      * @return array<array<mixed>>
      * @throws DataException
      */
-    public function find(string|null $poolKey, string $collectionName, array $filter = [], array $option = [], float $timeout = 0): array
+    public function find(string|null $poolKey, string $collectionName, array $query = [], array $option = [], float $timeout = 0): array
     {
         $taskData = new BasicTaskData('SwooleApp\SwooleAppMongoConnection\Tasks\MongoTasksExecutor', [
             'method' => 'find',
             'poolKey' => $poolKey,
             'collectionName' => $collectionName,
-            'filter' => $filter,
+            'query' => $query,
             'option' => $option,
         ]);
         $taskResult = $this->server->taskwait($taskData, $timeout);
